@@ -27,3 +27,15 @@ app.include_router(api_router)
 @app.get("/api/health")
 def health_check():
     return {"status": "ok", "app": "FocusMate AI"}
+
+
+@app.get("/api/debug-db")
+def debug_db():
+    import traceback
+    try:
+        from app.core.database import engine
+        with engine.connect() as conn:
+            result = conn.execute(__import__("sqlalchemy").text("SELECT 1"))
+            return {"db": "ok", "result": result.fetchone()}
+    except Exception as e:
+        return {"db": "error", "detail": traceback.format_exc()}
