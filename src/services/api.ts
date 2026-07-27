@@ -3,7 +3,7 @@ import Constants from "expo-constants";
 const API_BASE_URL =
   Constants.expoConfig?.extra?.apiUrl ??
   process.env.EXPO_PUBLIC_API_URL ??
-  "https://focusmate-api.onrender.com/api";
+  "https://focusmate-pocu.onrender.com/api";
 
 interface RequestOptions {
   method?: string;
