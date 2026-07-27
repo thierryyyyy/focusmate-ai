@@ -1,4 +1,4 @@
-import { MOTIVATIONAL_QUOTES, GOAL_CATEGORIES, AVATAR_MESSAGES } from "../../src/constants";
+import { MOTIVATIONAL_QUOTES, GOAL_CATEGORIES, AVATAR_MESSAGES } from "../../src/constants/index";
 
 describe("constants", () => {
   describe("MOTIVATIONAL_QUOTES", () => {

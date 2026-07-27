@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useAuthStore } from "../store/auth-store";
 import { sendAIMessage } from "../services/ai";
 import type { AIMessage } from "../types";
@@ -12,6 +12,7 @@ export function useChat() {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const token = useAuthStore((s) => s.token);
+  const messagesRef = useRef<AIMessage[]>([]);
 
   const sendMessage = useCallback(async (content: string) => {
     const userMessage: AIMessage = {
@@ -22,11 +23,14 @@ export function useChat() {
       createdAt: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => {
+      messagesRef.current = prev;
+      return [...prev, userMessage];
+    });
     setIsLoading(true);
 
     try {
-      const reply = await sendAIMessage(content, messages);
+      const reply = await sendAIMessage(content, messagesRef.current);
       const assistantMessage: AIMessage = {
         id: generateId(),
         userId: token ?? "local",
@@ -34,7 +38,10 @@ export function useChat() {
         content: reply,
         createdAt: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev) => {
+        messagesRef.current = prev;
+        return [...prev, assistantMessage];
+      });
     } catch {
       const errorMessage: AIMessage = {
         id: generateId(),
@@ -43,14 +50,18 @@ export function useChat() {
         content: "Désolé, j'ai eu un petit souci technique. Réessaie dans un instant ! 😅",
         createdAt: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => {
+        messagesRef.current = prev;
+        return [...prev, errorMessage];
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [messages, token]);
+  }, [token]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
+    messagesRef.current = [];
   }, []);
 
   return { messages, isLoading, sendMessage, clearMessages };

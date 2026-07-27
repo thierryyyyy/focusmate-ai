@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { goalsApi } from "../services/api";
 import { useAuthStore } from "../store/auth-store";
 import { useGoalStore } from "../store/goal-store";
+import { celebrateGoalCompletion } from "../services/notifications";
 import type { Goal, GoalStatus } from "../types";
 import type { CreateGoalFormData, UpdateGoalFormData } from "../features/goals/validation";
 
@@ -50,6 +51,7 @@ export function useGoals() {
       goalsApi.update(id, { status: "completed" as GoalStatus, progression: 100 }, token) as Promise<Goal>,
     onSuccess: (goal) => {
       updateGoal(goal.id, goal);
+      celebrateGoalCompletion(goal.title);
       queryClient.invalidateQueries({ queryKey: ["goals"] });
     },
   });

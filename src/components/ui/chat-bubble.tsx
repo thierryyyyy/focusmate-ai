@@ -11,9 +11,9 @@ export function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <View className={`mb-3 flex-row ${isUser ? "justify-end" : "justify-start"}`}>
       <View
-        className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+        className={`px-4 py-3 rounded-2xl ${
           isUser
-            ? "bg-primary-500 rounded-br-md"
+            ? "bg-primary-500 rounded-br-md max-w-[80%]"
             : "bg-dark-card border border-dark-border rounded-bl-md"
         }`}
       >

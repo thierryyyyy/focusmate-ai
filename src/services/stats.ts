@@ -26,11 +26,6 @@ function getWeekDates(): string[] {
   return dates;
 }
 
-function getDayLabel(dateStr: string): string {
-  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-  return days[new Date(dateStr + "T12:00:00").getDay()];
-}
-
 export function computeWeeklyStats(
   goals: Goal[],
   habits: Habit[],

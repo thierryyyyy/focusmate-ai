@@ -1,5 +1,16 @@
-import { Alert } from "react-native";
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 import type { Goal, Habit } from "../types";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 function getTodayStr(): string {
   const now = new Date();
@@ -10,11 +21,24 @@ function getTodayStr(): string {
 }
 
 export async function requestNotificationPermissions(): Promise<boolean> {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== "granted") return false;
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("reminders", {
+      name: "Rappels",
+      importance: Notifications.AndroidImportance.DEFAULT,
+    });
+  }
+
   return true;
 }
 
-export function showLocalNotification(title: string, body: string) {
-  Alert.alert(title, body, [{ text: "OK" }]);
+export async function showLocalNotification(title: string, body: string) {
+  await Notifications.scheduleNotificationAsync({
+    content: { title, body, sound: true },
+    trigger: null,
+  });
 }
 
 export function checkGoalReminders(goals: Goal[]) {

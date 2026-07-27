@@ -1,11 +1,13 @@
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, TextInput } from "react-native";
 import { router } from "expo-router";
+import { useState } from "react";
 import { MotiView } from "moti";
 import { useAuth } from "@hooks/useAuth";
 import { useGoalStore } from "@store/goal-store";
 import { useStats } from "@hooks/useStats";
 import { AvatarSVG } from "@components/ui/avatar-svg";
 import { useAvatarStore } from "@store/avatar-store";
+import { Button } from "@components/ui/button";
 
 function SettingRow({
   icon,
@@ -37,6 +39,8 @@ export default function ProfileScreen() {
   const { goals, habits } = useGoalStore();
   const { mood } = useAvatarStore();
   const stats = useStats();
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileName, setProfileName] = useState(user?.name ?? "");
 
   const handleLogout = () => {
     Alert.alert("Se déconnecter ?", "Tu devras te reconnecter.", [
@@ -50,6 +54,26 @@ export default function ProfileScreen() {
         },
       },
     ]);
+  };
+
+  const handleExportData = () => {
+    const data = {
+      user: { name: user?.name, email: user?.email },
+      goals: goals.length,
+      habits: habits.length,
+      stats: {
+        completionRate: stats.completionRate,
+        totalFocusHours: stats.totalFocusHours,
+      },
+    };
+    Alert.alert("Données exportées", JSON.stringify(data, null, 2));
+  };
+
+  const handleHelp = () => {
+    Alert.alert(
+      "Aide & Support",
+      "FocusMate AI v1.0.0\n\nUn coach personnel anti-procrastination.\n\nPour toute question, contacte-nous à support@focusmate.ai"
+    );
   };
 
   return (
@@ -92,6 +116,40 @@ export default function ProfileScreen() {
           </View>
         </MotiView>
 
+        {editingProfile && (
+          <MotiView
+            from={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            transition={{ duration: 300 }}
+            className="bg-dark-card rounded-2xl p-4 border border-dark-border mb-4"
+          >
+            <Text className="text-white font-semibold mb-3">Modifier le profil</Text>
+            <TextInput
+              className="bg-dark-surface border border-dark-border rounded-xl px-4 py-3 text-white text-base mb-3"
+              value={profileName}
+              onChangeText={setProfileName}
+              placeholder="Ton nom"
+              placeholderTextColor="#8888a0"
+            />
+            <View className="flex-row gap-2">
+              <Button
+                title="Sauvegarder"
+                onPress={() => {
+                  Alert.alert("Profil mis à jour", `Nom: ${profileName}`);
+                  setEditingProfile(false);
+                }}
+                size="sm"
+              />
+              <Button
+                title="Annuler"
+                onPress={() => setEditingProfile(false)}
+                variant="outline"
+                size="sm"
+              />
+            </View>
+          </MotiView>
+        )}
+
         <MotiView
           from={{ opacity: 0, transform: [{ translateY: 15 }] }}
           animate={{ opacity: 1, transform: [{ translateY: 0 }] }}
@@ -99,11 +157,25 @@ export default function ProfileScreen() {
         >
           <Text className="text-dark-muted text-sm mb-3 font-medium">Paramètres</Text>
           <View className="bg-dark-card rounded-2xl px-4 border border-dark-border">
-            <SettingRow icon="👤" label="Modifier le profil" onPress={() => {}} />
-            <SettingRow icon="🔔" label="Notifications" onPress={() => {}} />
-            <SettingRow icon="🎨" label="Apparence" onPress={() => {}} />
-            <SettingRow icon="📊" label="Exporter les données" onPress={() => {}} />
-            <SettingRow icon="❓" label="Aide & Support" onPress={() => {}} />
+            <SettingRow icon="👤" label="Modifier le profil" onPress={() => setEditingProfile(!editingProfile)} />
+            <SettingRow
+              icon="🔔"
+              label="Notifications"
+              onPress={() =>
+                Alert.alert("Notifications", "Les notifications push seront bientôt disponibles.", [
+                  { text: "OK" },
+                ])
+              }
+            />
+            <SettingRow
+              icon="🎨"
+              label="Apparence"
+              onPress={() =>
+                Alert.alert("Apparence", "Le mode clair sera bientôt disponible.", [{ text: "OK" }])
+              }
+            />
+            <SettingRow icon="📊" label="Exporter les données" onPress={handleExportData} />
+            <SettingRow icon="❓" label="Aide & Support" onPress={handleHelp} />
             <SettingRow icon="🚪" label="Se déconnecter" onPress={handleLogout} danger />
           </View>
         </MotiView>

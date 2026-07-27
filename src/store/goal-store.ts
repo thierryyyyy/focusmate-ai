@@ -6,7 +6,7 @@ interface GoalState {
   habits: Habit[];
   setGoals: (goals: Goal[]) => void;
   addGoal: (goal: Goal) => void;
-  updateGoal: (id: string, updates: Partial<Goal>) => void;
+  updateGoal: (id: string, updates: Partial<Goal> | Goal) => void;
   removeGoal: (id: string) => void;
   setHabits: (habits: Habit[]) => void;
   addHabit: (habit: Habit) => void;

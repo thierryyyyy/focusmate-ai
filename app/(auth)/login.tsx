@@ -1,31 +1,11 @@
-import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform, TextInput } from "react-native";
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { Link, router } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MotiView } from "moti";
 import { useAuth } from "@hooks/useAuth";
 import { loginSchema, type LoginFormData } from "@features/auth/validation";
-
-function FormInput({
-  label,
-  error,
-  ...props
-}: {
-  label: string;
-  error?: string;
-} & React.ComponentProps<typeof TextInput>) {
-  return (
-    <View className="mb-4">
-      <Text className="text-dark-muted text-sm mb-2">{label}</Text>
-      <TextInput
-        className="bg-dark-surface border border-dark-border rounded-xl px-4 py-4 text-white text-base"
-        placeholderTextColor="#8888a0"
-        {...props}
-      />
-      {error && <Text className="text-red-400 text-xs mt-1">{error}</Text>}
-    </View>
-  );
-}
+import { Input } from "@components/ui/input";
 
 export default function LoginScreen() {
   const { login, isLoggingIn, loginError } = useAuth();
@@ -65,7 +45,7 @@ export default function LoginScreen() {
               control={control}
               name="email"
               render={({ field, fieldState }) => (
-                <FormInput
+                <Input
                   label="Email"
                   placeholder="thierry@email.com"
                   keyboardType="email-address"
@@ -82,7 +62,7 @@ export default function LoginScreen() {
               control={control}
               name="password"
               render={({ field, fieldState }) => (
-                <FormInput
+                <Input
                   label="Mot de passe"
                   placeholder="••••••"
                   secureTextEntry

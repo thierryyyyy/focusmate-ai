@@ -1,11 +1,12 @@
-import { View, Text, FlatList, Pressable, ActivityIndicator } from "react-native";
-import { router, Stack } from "expo-router";
+import { View, Text, FlatList, Pressable, ActivityIndicator, TextInput } from "react-native";
 import { useState } from "react";
 import { MotiView } from "moti";
 import { useHabits } from "@hooks/useHabits";
 import { HabitCard } from "@components/ui/habit-card";
 import { EmptyState } from "@components/ui/card";
 import { Button } from "@components/ui/button";
+
+const HABIT_ICONS = ["📚", "💪", "📖", "💧", "🧘", "😴", "🚶", "🥗", "✍️", "🎵", "🧹", "💊"];
 
 const HABIT_PRESETS = [
   { name: "Lecture", icon: "📚", frequency: "daily" as const },
@@ -21,11 +22,27 @@ const HABIT_PRESETS = [
 export default function HabitsScreen() {
   const { habits, isLoading, createHabit, toggleToday, isCreating } = useHabits();
   const [showCreate, setShowCreate] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customIcon, setCustomIcon] = useState("📋");
 
   const handleQuickCreate = (preset: (typeof HABIT_PRESETS)[number]) => {
     createHabit(preset, {
       onSuccess: () => setShowCreate(false),
     });
+  };
+
+  const handleCustomCreate = () => {
+    if (!customName.trim()) return;
+    createHabit(
+      { name: customName.trim(), icon: customIcon, frequency: "daily" },
+      {
+        onSuccess: () => {
+          setCustomName("");
+          setCustomIcon("📋");
+          setShowCreate(false);
+        },
+      }
+    );
   };
 
   return (
@@ -59,7 +76,41 @@ export default function HabitsScreen() {
           transition={{ duration: 300 }}
           className="mx-6 bg-dark-card rounded-2xl p-4 border border-dark-border mb-4"
         >
-          <Text className="text-white font-semibold mb-3">Choisir une habitude</Text>
+          <Text className="text-white font-semibold mb-3">Créer une habitude</Text>
+
+          <Text className="text-dark-muted text-sm mb-2">Icône</Text>
+          <View className="flex-row flex-wrap gap-2 mb-3">
+            {HABIT_ICONS.map((icon) => (
+              <Pressable
+                key={icon}
+                onPress={() => setCustomIcon(icon)}
+                className={`w-10 h-10 rounded-lg items-center justify-center ${
+                  customIcon === icon ? "bg-primary-500/30 border border-primary-500" : "bg-dark-surface border border-dark-border"
+                }`}
+              >
+                <Text className="text-lg">{icon}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Text className="text-dark-muted text-sm mb-2">Nom</Text>
+          <TextInput
+            className="bg-dark-surface border border-dark-border rounded-xl px-4 py-3 text-white text-base mb-3"
+            placeholder="Ex: Lire 30 minutes"
+            placeholderTextColor="#8888a0"
+            value={customName}
+            onChangeText={setCustomName}
+          />
+
+          <Button
+            title={isCreating ? "Création..." : "Créer"}
+            onPress={handleCustomCreate}
+            loading={isCreating}
+            disabled={!customName.trim()}
+            size="sm"
+          />
+
+          <Text className="text-dark-muted text-xs text-center mt-3 mb-1">Ou choisissez un preset</Text>
           <View className="flex-row flex-wrap gap-2">
             {HABIT_PRESETS.map((preset, i) => (
               <Pressable

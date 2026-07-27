@@ -10,25 +10,8 @@ interface AuthResponse {
   token: string;
 }
 
-const DEV_EMAIL = "dev@focusmate.app";
-const DEV_PASSWORD = "focusmate2024";
-
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
-    if (email === DEV_EMAIL && password === DEV_PASSWORD) {
-      const user: User = {
-        id: "dev-user-1",
-        name: "FocusMate Dev",
-        email: DEV_EMAIL,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      const token = "dev-token-fake-jwt";
-      await SecureStore.setItemAsync(TOKEN_KEY, token);
-      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
-      return { user, token };
-    }
-
     const res = await apiClient<AuthResponse>("/auth/login", {
       method: "POST",
       body: { email, password },

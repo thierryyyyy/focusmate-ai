@@ -4,6 +4,7 @@ import { MotiView } from "moti";
 import { useAvatarStore } from "@store/avatar-store";
 import { useGoalStore } from "@store/goal-store";
 import { useAuth } from "@hooks/useAuth";
+import { useStats } from "@hooks/useStats";
 import { AvatarSVG } from "@components/ui/avatar-svg";
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: string }) {
@@ -28,6 +29,7 @@ export default function DashboardScreen() {
   const { user } = useAuth();
   const { mood, message, getRandomQuote } = useAvatarStore();
   const { goals, habits } = useGoalStore();
+  const stats = useStats();
 
   const todayGoals = goals.filter((g) => {
     const today = new Date().toISOString().split("T")[0];
@@ -87,7 +89,7 @@ export default function DashboardScreen() {
           <View className="flex-row gap-3">
             <StatCard label="Objectifs" value={String(todayGoals.length)} icon="🎯" />
             <StatCard label="Habitudes" value={String(habits.length)} icon="🔄" />
-            <StatCard label="Focus" value="0h" icon="⏱️" />
+            <StatCard label="Focus" value={`${stats.totalFocusHours}h`} icon="⏱️" />
           </View>
         </MotiView>
 
