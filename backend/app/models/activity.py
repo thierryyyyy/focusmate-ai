@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
-from sqlalchemy import Column, String, DateTime, Integer, Float, ForeignKey
+from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
@@ -16,6 +16,6 @@ class Activity(Base):
     habit_id = Column(UUID(as_uuid=True), ForeignKey("habits.id"), nullable=True)
     type = Column(String(20), nullable=False, default="focus")
     duration = Column(Integer, nullable=False, default=0)
-    date = Column(String(10), nullable=False)
+    date = Column(Date, nullable=False)
     notes = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

@@ -77,14 +77,15 @@ async def chat(data: ChatRequest, user: User = Depends(get_current_user)):
                     })
             contents.append({"role": "user", "parts": [{"text": full_message}]})
 
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={settings.GEMINI_API_KEY}"
+            url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+            headers = {"X-Goog-Api-Key": settings.GEMINI_API_KEY, "Content-Type": "application/json"}
             payload = {
                 "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
                 "contents": contents,
                 "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.7},
             }
             async with httpx.AsyncClient() as client:
-                res = await client.post(url, json=payload, timeout=15)
+                res = await client.post(url, json=payload, headers=headers, timeout=15)
                 if res.status_code == 200:
                     result = res.json()
                     reply = result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")

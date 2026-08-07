@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from app.core.database import get_db
 from app.core.security import get_current_user
@@ -14,19 +14,27 @@ router = APIRouter(prefix="/api/stats", tags=["stats"])
 
 @router.get("")
 def get_stats(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    goals = db.query(Goal).filter(Goal.user_id == user.id).all()
-    habits = db.query(Habit).filter(Habit.user_id == user.id).all()
-    activities = db.query(Activity).filter(Activity.user_id == user.id).all()
-
-    total_goals = len(goals)
-    completed_goals = len([g for g in goals if g.status == "completed"])
-    total_habits = len(habits)
-    total_focus = sum(a.duration for a in activities)
+    total_goals = db.scalar(
+        select(func.count(Goal.id)).where(Goal.user_id == user.id)
+    ) or 0
+    completed_goals = db.scalar(
+        select(func.count(Goal.id)).where(
+            Goal.user_id == user.id, Goal.status == "completed"
+        )
+    ) or 0
+    total_habits = db.scalar(
+        select(func.count(Habit.id)).where(Habit.user_id == user.id)
+    ) or 0
+    total_focus_minutes = db.scalar(
+        select(func.coalesce(func.sum(Activity.duration), 0)).where(
+            Activity.user_id == user.id, Activity.type == "focus"
+        )
+    ) or 0
 
     return {
         "totalGoals": total_goals,
         "completedGoals": completed_goals,
         "completionRate": round((completed_goals / total_goals * 100) if total_goals > 0 else 0),
         "totalHabits": total_habits,
-        "totalFocusHours": round(total_focus / 60, 1),
+        "totalFocusHours": round(total_focus_minutes / 60, 1),
     }
